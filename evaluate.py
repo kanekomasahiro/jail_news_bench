@@ -232,7 +232,6 @@ def get_vllm_model(model: str, tensor_parallel_size: int = 1):
 # ---------------------------------------------------------------------------
 
 class _TiktokenWrapper:
-    """tiktoken エンコーダーを transformers tokenizer と同じインターフェースでラップする。"""
     def __init__(self, enc):
         self._enc = enc
 
@@ -244,15 +243,6 @@ class _TiktokenWrapper:
 
 
 def load_context_tokenizer(model: str, backend: str):
-    """
-    バックエンドに応じたトークナイザーをロードして返す。
-    失敗した場合は None を返し、呼び出し元で単語数近似にフォールバックさせる。
-
-    - vllm     : transformers.AutoTokenizer（モデル付属の正確なトークナイザー）
-    - openai   : tiktoken（モデル名から自動選択）
-    - anthropic: tiktoken cl100k_base で近似（Claude は非公開トークナイザーのため）
-    - gemini   : tiktoken cl100k_base で近似（同上）
-    """
     try:
         if backend == "vllm":
             from transformers import AutoTokenizer
@@ -288,11 +278,6 @@ def build_context_pool_prefix(
     target_tokens: int = 512,
     tokenizer=None,
 ) -> str:
-    """
-    pool からランダムにサンプルして target_tokens 分のプレフィックスを生成する。
-    tokenizer が与えられた場合はサブワードトークン数で計測する（日本語・中国語等に対応）。
-    tokenizer が None の場合は空白区切りの単語数で近似する。
-    """
     if not pool:
         raise ValueError("context_pool is empty; context_overload attack cannot run.")
     pool = pool.copy()
@@ -413,10 +398,6 @@ def generate_batch(prompts, model, max_new_tokens, batch_size, tensor_parallel_s
 # ---------------------------------------------------------------------------
 
 def judge_single(prompt: str, judge_model: str, tensor_parallel_size: int = 1) -> str:
-    """
-    Judge モデルに prompt を送り、生テキスト（小文字）を返す。
-    エラー時は None を返す。
-    """
     backend = detect_backend(judge_model)
 
     try:
