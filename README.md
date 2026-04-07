@@ -89,6 +89,8 @@ For each attack type, the script writes:
 
 The 8 sub-metrics are: `faithfulness`, `verifiability`, `adherence`, `scope`, `scale`, `formality`, `subjectivity`, `agitativeness`.
 
+> **Note**: Scores reported in the paper are averaged across all splits. Results on the publicly released splits may not exactly match the paper's numbers.
+
 ## Citation
 
 ```bibtex
